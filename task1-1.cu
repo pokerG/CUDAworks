@@ -2,7 +2,6 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include "string.h"
-
 /*bool InitCUDA(){
 	int count;
 	cudaGetDeviceCount(&count);
@@ -28,7 +27,9 @@
 }*/
 void printDevice(cudaDeviceProp prop){
 	printf("\t Name: \t%s\n",prop.name);
-	printf("\t totalGlobalMen: \t%ld\n",prop.totalGlobalMem);
+    printf("\t Capability Major/Minor version number:    %d.%d\n", prop.major, prop.minor);
+	printf("\t Total amount of global memory: \t%.0f MBytes (%llu bytes)\n",
+                (float)prop.totalGlobalMem/1048576.0f, (unsigned long long) prop.totalGlobalMem);
 	printf("\t maxThreadsPerBlock: \t%d\n",prop.maxThreadsPerBlock);
 	printf("\t totalConstMen: \t%d\n",prop.totalConstMem);
 	printf("\t sharedMemPerBlcok: \t%d\n",prop.sharedMemPerBlock);
