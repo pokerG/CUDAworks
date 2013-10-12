@@ -29,7 +29,7 @@ unsigned int cpucalcThread[ARRAY_SIZE];
 
 
 int main(){
-	const unsigned int numBlock = 2;
+	const unsigned int numBlock = 65;
 	const unsigned int numThreads = 64;
 	char ch;
 
@@ -39,10 +39,10 @@ int main(){
 	unsigned int * gpuclacThread;
 	unsigned int i;
 	//float *gpuTime;
-	clock_t *dtimer;
-	clock_t timer[numBlock * 4];
+	clock_t *gpuTime;
+	clock_t cpuTime[numBlock * 4];
 	
-	cudaMalloc((void **)&dtimer,sizeof(clock_t) * numBlock * 4);
+	cudaMalloc((void **)&gpuTime,sizeof(clock_t) * numBlock * 4);
 	cudaMalloc((void **)&gpuBlock,ARRAY_SIZE_IN_BYTES);
 	cudaMalloc((void **)&gpuThread,ARRAY_SIZE_IN_BYTES);
 	cudaMalloc((void **)&gpuWarp,ARRAY_SIZE_IN_BYTES);
@@ -53,7 +53,7 @@ int main(){
 //	cudaEventCreate(&start);
 //	cudaEventCreate(&stop);
 //	cudaEventRecord(start,0);
-	whatIsMyId<<<numBlock,numThreads>>>(gpuBlock,gpuThread,gpuWarp,gpuclacThread,dtimer);
+	whatIsMyId<<<numBlock,numThreads>>>(gpuBlock,gpuThread,gpuWarp,gpuclacThread,gpuTime);
 //	cudaEventRecord(stop,0);
 //	cudaEventSynchronize(stop);
 //	float elapsedTime;
@@ -61,7 +61,7 @@ int main(){
 //	cudaEventDestroy(start);
 //	cudaEventDestroy(stop);
 
-	cudaMemcpy(timer,dtimer,sizeof(clock_t) * numBlock * 4,cudaMemcpyDeviceToHost);
+	cudaMemcpy(cpuTime,gpuTime,sizeof(clock_t) * numBlock * 4,cudaMemcpyDeviceToHost);
 	cudaMemcpy(cpuBlock,gpuBlock,ARRAY_SIZE_IN_BYTES,cudaMemcpyDeviceToHost);
 	cudaMemcpy(cpuThread,gpuThread,ARRAY_SIZE_IN_BYTES,cudaMemcpyDeviceToHost);
 	cudaMemcpy(cpuWarp,gpuWarp,ARRAY_SIZE_IN_BYTES,cudaMemcpyDeviceToHost);
@@ -69,7 +69,7 @@ int main(){
 	//cudaMemcpy(cpuTime,gpuTime,ARRAY_SIZE_IN_FLOAT,cudaMemcpyDeviceToHost);
 
 	//cudaFree(gpuTime);
-	cudaFree(dtimer);
+	cudaFree(gpuTime);
 	cudaFree(gpuBlock);
 	cudaFree(gpuThread);
 	cudaFree(gpuWarp);
@@ -85,9 +85,10 @@ int main(){
 	}
 
 	for(i = 0; i < numBlock * 2; i++){
-		printf("%d %d\n",timer[numBlock * 2 + i],timer[i]);
-		printf("time %d = %d\n",i,timer[numBlock * 2 + i]-timer[i]);
+		//printf("%d %d\n",cpuTime[numBlock * 2 + i],cpuTime[i]);
+		printf("warp %d time = %d\n",i,cpuTime[numBlock * 2 + i]-cpuTime[i]);
 	}
+	
 	ch = getch();
 
 }
